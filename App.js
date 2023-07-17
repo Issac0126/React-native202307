@@ -11,6 +11,12 @@ export default function App() {
   const startAddGoalHandler = () => {
     setModalIsVisible(true);
   }
+  const endAddGoalHandler = () => {
+    setModalIsVisible(false);
+  }
+
+
+
 
   //버튼을 누르면 할 일 목록을 추가하는 함수
   const addGoalHandler = (enteredGoalText) => {
@@ -20,6 +26,7 @@ export default function App() {
       ...currentTodoGoals,
       { text: enteredGoalText, id: Math.random().toString() },
     ]);
+    endAddGoalHandler(); // 모달 종료
   };
 
   const deleteGoalHandler = (id) =>{
@@ -32,8 +39,13 @@ export default function App() {
 
   return (
     <View style={styles.appContainer}>
-      <Button title="할 일 추가하기!" color={'#5e0acc'} onPress={startAddGoalHandler}/>
-      {modalIsVisible && <GoalInput onAddGoal={addGoalHandler}/>}
+      <Button 
+        title="할 일 추가하기!" 
+        color={'#5e0acc'} 
+        onPress={startAddGoalHandler}/>
+      <GoalInput 
+        onAddGoal={addGoalHandler} onCancel={endAddGoalHandler}
+        visible={modalIsVisible} />
       <View style={styles.goalsContainer}>
         {/* 
             ScrollView는 전체 화면이 렌더링 될 때 안의 항목들을 전부 렌더링한다.
