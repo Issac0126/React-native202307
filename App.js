@@ -1,39 +1,39 @@
 import { useState } from "react";
 import { StyleSheet, View, Button, TextInput, FlatList } from "react-native";
 import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 
 export default function App() {
-  const [enteredGoalText, setEnteredGoalText] = useState("");
+  const [modalIsVisible, setModalIsVisible] = useState(false);
   const [todoGoals, setTodoGoals] = useState([]);
 
-  //사용자가 내용을 입력할 때 해당 입력값을 가져오는 함수
-  const goalInputHandler = (enteredText) => {
-    setEnteredGoalText(enteredText);
-  };
+  //할 일 추가 모달을 띄워주는 함수
+  const startAddGoalHandler = () => {
+    setModalIsVisible(true);
+  }
 
   //버튼을 누르면 할 일 목록을 추가하는 함수
-  const addGoalHandler = () => {
+  const addGoalHandler = (enteredGoalText) => {
     //useState로 관리하는 상태 변수의 setter 안에 콜백 함수를 작성하면,
     // 해당 콜백함수의 매개값은 항상 해당 상태 변수의 최신 값이 전달된다.
     setTodoGoals((currentTodoGoals) => [
       ...currentTodoGoals,
       { text: enteredGoalText, id: Math.random().toString() },
     ]);
-
-    // const $answer = document.getElementById("goal-text");
-    // $answer.textContent = "";
   };
+
+  const deleteGoalHandler = (id) =>{
+    setTodoGoals((currentTodoGoals) => {
+      return currentTodoGoals.filter((goal) => goal.id !== id); 
+      // 내가 준 삭제할 아이디 빼고 새 배열 제작
+    })
+  }
+
 
   return (
     <View style={styles.appContainer}>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.textInput}
-          placeholder="할 일을 입력하세요."
-          onChangeText={goalInputHandler}
-        />
-        <Button title="할 일 추가하기" onPress={addGoalHandler} />
-      </View>
+      <Button title="할 일 추가하기!" color={'#5e0acc'} onPress={startAddGoalHandler}/>
+      {modalIsVisible && <GoalInput onAddGoal={addGoalHandler}/>}
       <View style={styles.goalsContainer}>
         {/* 
             ScrollView는 전체 화면이 렌더링 될 때 안의 항목들을 전부 렌더링한다.
@@ -42,12 +42,16 @@ export default function App() {
             
             FlatList는 보이는 영역만 일단 렌더링을 진행하고, 나머지 항복들은
             스크롤 움직임이 발생하면 렌더링을 진행한다.
-          */}
+          */} 
         <FlatList
           data={todoGoals}
           renderItem={(itemData) => {
             // 객체 형태로 전달.
-            return <GoalItem text={itemData.item.text} />;
+            return <GoalItem 
+              text={itemData.item.text} 
+              id={itemData.item.id}
+              onDeleteItem={deleteGoalHandler}
+            />;
           }}
           keyExtractor={(item, index) => {
             return item.id;
@@ -64,22 +68,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 50,
     paddingHorizontal: 16,
-  },
-  inputContainer: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: "#cccccc",
-  },
-  textInput: {
-    borderWidth: 1,
-    borderColor: "#cccccc",
-    width: "70%",
-    marginRight: 5,
-    padding: 8,
   },
   goalsContainer: {
     flex: 4,
